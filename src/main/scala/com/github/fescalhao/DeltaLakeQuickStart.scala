@@ -16,9 +16,6 @@ object DeltaLakeQuickStart extends Serializable {
 
   def main(args: Array[String]): Unit = {
     val spark: SparkSession = SparkPackageUtils.getSparkSession("Delta Lake Quick Start")
-    spark.sparkContext.hadoopConfiguration.set("dfs.client.read.shortcircuit.skip.checksum", "true")
-    spark.sparkContext.hadoopConfiguration.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false")
-    spark.sparkContext.hadoopConfiguration.set("parquet.enable.summary-metadata", "false")
 
     writeStreaming(spark)
   }
