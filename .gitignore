@@ -1,0 +1,16 @@
+*.class
+*.log
+*.iml
+*.ipr
+*.iws
+.idea
+.history
+.cache
+.lib/
+target/
+dataSink/
+spark-warehouse/
+metastore_db/
+dist/*
+tables/
+spark-logs/
