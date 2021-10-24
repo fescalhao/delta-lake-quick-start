@@ -3,6 +3,7 @@ package com.github.fescalhao
 import com.github.SparkPackageUtils
 import io.delta.tables.DeltaTable
 import org.apache.log4j.Logger
+import org.apache.spark.sql.delta.DeltaOptions
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
@@ -79,7 +80,7 @@ object DeltaLakeQuickStart extends Serializable {
   }
 
   def writeStreaming(spark: SparkSession): Unit = {
-    val streamingDF = spark.readStream.format("rate").option("rowsPerSecond", 1).load()
+    val streamingDF = spark.readStream.format("rate").option("rowsPerSecond", 100).load()
     streamingDF
       .select(col("value").alias("id"), col("timestamp"))
       .repartition(1)
@@ -89,7 +90,6 @@ object DeltaLakeQuickStart extends Serializable {
       .outputMode(OutputMode.Append())
       .option("queryName", "writeStreamingTest")
       .option("checkpointLocation", "./tables/checkpoint")
-      .option("maxBytesPerTrigger", 50)
       .start("./tables/delta-table-stream")
       .awaitTermination()
   }
@@ -98,9 +98,11 @@ object DeltaLakeQuickStart extends Serializable {
     spark
       .readStream
       .format("delta")
+      .option(DeltaOptions.MAX_BYTES_PER_TRIGGER_OPTION, 1024)
       .load("./tables/delta-table-stream")
       .writeStream
       .format("console")
+      .trigger(Trigger.ProcessingTime(Duration(10, TimeUnit.SECONDS)))
       .start()
       .awaitTermination()
   }
